@@ -14,12 +14,16 @@ import subprocess
 import cv2
 import numpy as np
 
+def start_onmyoji()
+    os.system('adb shell am start -D -n com.netease.onmyoji.mi/com.netease.onmyoji.Launcher')
+
 #解决cv2.imread()不能读入中文路径问题，这里转换中文格式
 def cv2_repath(file_path):
     cv_img = cv2.imdecode(np.fromfile(file_path, dtype=np.uint8), -1)
     return cv_img
 
 def adb_connect():
+    # os.system('adb connect 192.168.1.139:5555')
     os.system('adb connect 192.168.2.182:5555')
 def get_screenshot_img():
     # 使用subprocess的Popen调用adb shell命令，并将结果保存在PIPE管道中
