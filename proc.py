@@ -14,7 +14,24 @@ import subprocess
 import cv2
 import numpy as np
 
-def start_onmyoji()
+def get_screen_size():
+    screen_width = win32api.GetSystemMetrics(0)
+    screen_height = win32api.GetSystemMetrics(1)
+    return screen_width, screen_height
+def get_window_onmyoji():
+    hwnd = win32gui.FindWindow(None, '阴阳师-网易游戏')
+    left, top, right, bottom = win32gui.GetWindowRect(hwnd)
+    width = right - left
+    height = bottom - top
+    return hwnd, width, height, left, top
+def move_window_onmyoji():
+    hwnd = get_window_onmyoji()[0]
+    win32gui.SetForegroundWindow(hwnd)
+    screen_width, screen_height = get_screen_size()
+    # onmyoji默认窗口大小1152*679， 现有屏幕分辨率为2K
+    win32gui.SetWindowPos(hwnd, win32con.HWND_TOPMOST, 0,screen_height,1152,679, win32con.SWP_SHOWWINDOW)
+
+def start_onmyoji_adb()
     os.system('adb shell am start -D -n com.netease.onmyoji.mi/com.netease.onmyoji.Launcher')
 
 #解决cv2.imread()不能读入中文路径问题，这里转换中文格式
@@ -25,7 +42,7 @@ def cv2_repath(file_path):
 def adb_connect():
     # os.system('adb connect 192.168.1.139:5555')
     os.system('adb connect 192.168.2.182:5555')
-def get_screenshot_img():
+def get_screenshot_img_adb():
     # 使用subprocess的Popen调用adb shell命令，并将结果保存在PIPE管道中
     process = subprocess.Popen('adb shell screencap -p', shell=True, stdout=subprocess.PIPE)
     # 读取管道中的数据
@@ -36,14 +53,14 @@ def get_screenshot_img():
     img_screenshot = cv2.imdecode(np.frombuffer(binary_screenshot, np.uint8), cv2.IMREAD_COLOR)
     return img_screenshot
 
-def creat_screenshot_file():
+def creat_screenshot_file_adb():
     os.system('adb connect 192.168.2.182:5555')
     os.system('adb shell /system/bin/screencap -p /sdcard/screencap.png')
     os.system('adb pull /sdcard/screencap.png screencap.png')
 
 def recog_png(temple_png, show):
 #    img = cv2.imread(img_png, cv2.IMREAD_COLOR)
-    img = get_screenshot_img()
+    img = get_screenshot_img_adb()
     temple = cv2.imread(temple_png, cv2.IMREAD_COLOR)
     w, h = temple.shape[-2::-1]
     result = cv2.matchTemplate(img, temple, cv2.TM_CCOEFF_NORMED)
